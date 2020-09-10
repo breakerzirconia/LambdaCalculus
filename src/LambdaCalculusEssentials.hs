@@ -94,3 +94,7 @@ switch = Apply (Apply s (Apply k (Apply s i))) (Apply (Apply s (Apply k k)) i)
 
 y = Lambda "f" (Apply (Lambda "x" (Apply (Var "f") (Apply (Var "x") (Var "x")))) 
                       (Lambda "x" (Apply (Var "f") (Apply (Var "x") (Var "x")))))
+
+turing :: LambdaTerm
+turing = Apply (Lambda "x" (Lambda "y" (Apply (Var "y") (Apply (Apply (Var "x") (Var "x")) (Var "y")))))
+               (Lambda "x" (Lambda "y" (Apply (Var "y") (Apply (Apply (Var "x") (Var "x")) (Var "y")))))

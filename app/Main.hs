@@ -1,6 +1,6 @@
 module Main where
 
-import Lib
+import LambdaCalculusEssentials
 
 main :: IO ()
-main = someFunc
+main = putStrLn "YEET"
