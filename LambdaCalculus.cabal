@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1dd528c7869c17bf5b53c617eed3baaaf8eadfcccef569147265e709acef137c
+-- hash: 1a6fa5a66f4f5e65894295d28d11c99a76c7b6ddda735709e9cf9bc731998c95
 
 name:           LambdaCalculus
 version:        0.1.0.0
@@ -27,13 +27,14 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      LambdaCalculusEssentials
   other-modules:
       Paths_LambdaCalculus
   hs-source-dirs:
       src
   build-depends:
       base >=4.7 && <5
+    , hspec
   default-language: Haskell2010
 
 executable LambdaCalculus-exe
@@ -46,6 +47,7 @@ executable LambdaCalculus-exe
   build-depends:
       LambdaCalculus
     , base >=4.7 && <5
+    , hspec
   default-language: Haskell2010
 
 test-suite LambdaCalculus-test
