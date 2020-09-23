@@ -175,7 +175,7 @@ toSK' :: LambdaTerm -> LambdaTerm
 toSK' (Var x) = Var x
 toSK' (p :@: q) = (toSK' p) :@: (toSK' q)
 toSK' (L x (Var p)) = if x == p
-                     then skk'
-                     else k' :@: (Var p)
+                      then skk'
+                      else k' :@: (Var p)
 toSK' (L x (l@(L _ _))) = toSK' (L x (toSK' l))
 toSK' (L x (p :@: q)) = s' :@: (toSK' (L x p)) :@: (toSK' (L x q))
