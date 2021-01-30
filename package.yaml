@@ -21,7 +21,11 @@ description:         Please see the README on GitHub at <https://github.com/brea
 
 dependencies:
 - base >= 4.7 && < 5
+- text
 - hspec
+- tasty-quickcheck
+- tasty
+- containers
 
 library:
   source-dirs: src

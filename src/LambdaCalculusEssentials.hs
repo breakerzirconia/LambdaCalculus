@@ -1,3 +1,6 @@
+{-# LANGUAGE Strict     #-}
+{-# LANGUAGE StrictData #-}
+
 module LambdaCalculusEssentials where
 
 import Data.List ( (\\)
@@ -9,7 +12,7 @@ infixl 5 :@:
 data LambdaTerm = Var String 
                 | LambdaTerm :@: LambdaTerm 
                 | L String LambdaTerm 
-                deriving Eq
+                deriving (Eq, Ord)
 
 instance Show LambdaTerm where
   show (Var s) = s
@@ -30,8 +33,8 @@ substitute :: LambdaTerm -> String -> LambdaTerm -> LambdaTerm
 substitute p@(Var y) x q = if x == y then q else p
 substitute (r :@: s) x q = (substitute r x q) :@: (substitute s x q)
 substitute p@(L y r) x q = if x == y 
-                                then p 
-                                else L y (substitute r x q)
+                           then p 
+                           else L y (substitute r x q)
 
 substituteLiterally :: LambdaTerm -> String -> String -> LambdaTerm
 substituteLiterally p@(Var y) x q = if x == y then Var q else p
@@ -39,6 +42,17 @@ substituteLiterally (r :@: s) x q = (substituteLiterally r x q) :@: (substituteL
 substituteLiterally p@(L y r) x q = if x == y 
                                          then L q (substituteLiterally r x q)
                                          else L y (substituteLiterally r x q)
+
+substituteLinker :: LambdaTerm -> String -> String -> LambdaTerm
+substituteLinker = go True
+  where
+    go _ (Var y) x q = if x == y then Var q else Var y
+    go b (r :@: s) x q = (go b r x q) :@: (go b s x q)
+    go b (L y r) x q = if x /= y
+                       then L y (go b r x q)
+                       else if b
+                            then L q (go (not b) r x q)
+                            else L y r 
 
 linkers :: LambdaTerm -> [String]
 linkers (Var _) = []
@@ -53,21 +67,22 @@ free (L x p) = free p \\ [x]
 eval :: LambdaTerm -> LambdaTerm
 eval v@(Var x) = v
 eval (L x p) = L x (eval p)
-eval (p@(L x p') :@: q) 
-  = let p'Linkers = linkers p'
-        qEverything = linkers q ++ free q
-        newp'Linkers = (\(a, b, c) -> reverse a)
-                     $ foldl (\(acc, qE, n) x -> if x `elem` qE
-                                                 then ((x ++ show n) : acc, qE, n + 1)
-                                                 else (x : acc, qE, n + 1)
-                             ) ([], qEverything, 0) p'Linkers
-        newP = L x $ helperSub p' p'Linkers newp'Linkers
-    in if newP == p
-       then substitute p' x q
-       else newP :@: q
-  where
-    helperSub p []     []     = p
-    helperSub p (x:xs) (y:ys) = helperSub (substituteLiterally p x y) xs ys
+-- eval (p@(L x p') :@: q) 
+--   = let p'Linkers = linkers p'
+--         qEverything = linkers q ++ free q
+--         newp'Linkers = (\(a, b, c) -> reverse a)
+--                      $ foldl (\(acc, qE, n) x -> if x `elem` qE
+--                                                  then ((x ++ show n) : acc, qE, n + 1)
+--                                                  else (x : acc, qE, n + 1)
+--                              ) ([], qEverything, 0) p'Linkers
+--         newP = L x $ helperSub p' p'Linkers newp'Linkers
+--     in if newP == p
+--        then substitute p' x q
+--        else newP :@: q
+--   where
+--     helperSub p []     []     = p
+--     helperSub p (x:xs) (y:ys) = helperSub (substituteLinker p x y) xs ys
+eval (p@(L x p') :@: q) = substitute p' x q
 
 eval (p :@: q) = (eval p) :@: (eval q)
 
@@ -139,8 +154,8 @@ y = L "f" ((L "x" ((Var "f") :@: ((Var "x") :@: (Var "x")))) :@:
            (L "x" ((Var "f") :@: ((Var "x") :@: (Var "x")))))
 
 turing :: LambdaTerm
-turing = (L "x" (L "y" ((Var "y") :@: ((Var "x") :@: (Var "x") :@: (Var "y")))))
-     :@: (L "x" (L "y" ((Var "y") :@: ((Var "x") :@: (Var "x") :@: (Var "y")))))
+turing = (L "x" (L "y" ((Var "y") :@: ((Var "x") :@: (Var "x") :@: (Var "y"))))) :@:
+         (L "x" (L "y" ((Var "y") :@: ((Var "x") :@: (Var "x") :@: (Var "y")))))
 
 mkPair :: LambdaTerm
 mkPair = L "a" (L "b" (L "x" ((Var "x") :@: (Var "a") :@: (Var "b"))))
